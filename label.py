@@ -2,8 +2,12 @@ import cv2
 import math
 import os
 import numpy as np
+import sys
 
 def excract_frames(videoFilePath, savePath=None):
+    '''
+    Slice video to frames
+    '''
     savePath = savePath if savePath is not None else 'frames\\' + os.path.splitext(os.path.basename(videoFilePath))[0] # if save path is not specified then create it from video filename
     if not os.path.exists(savePath):
         os.makedirs(savePath)
@@ -30,6 +34,9 @@ def rescale_frame(frame):
     return cv2.resize(frame, (640, 480), interpolation=cv2.INTER_AREA)
 
 def label_data(folderPath, start_from=0):
+    '''
+    Label frames
+    '''
     files = os.listdir(folderPath)
     files_path = [os.path.join(folderPath, fi) for fi in files]
 
@@ -50,14 +57,17 @@ def get_code(path):
     img = cv2.imread(path)
     while(1):
         cv2.imshow('Labelling',img)
-        k = cv2.waitKey(0)
+        k = cv2.waitKey(0) & 0xFF
         cv2.destroyAllWindows()
-        if k==27:    # Esc key to stop and break while cycle
+        if k==27 or k == ord('q'):    # Esc key to stop and break while cycle
             return None
-        elif k==ord('a'):  # if a key pressed - corelete with 1 class
-            return 1
+        for i in range(1,10):
+            if k==ord(str(i)):  # if number key pressed - corelete with number class
+                return i
         else:
             return 0
 
-excract_frames('video\\PokemonS17E35.mkv')
-label_data('frames\\PokemonS17E35')
+if __name__ == '__main__':
+    path = sys.argv[1]
+    excract_frames(path)
+    label_data(path[-4])
